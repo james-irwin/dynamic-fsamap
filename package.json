@@ -1,0 +1,8 @@
+{
+  "name": "fsa-geo-filter",
+  "version": "0.0.1",
+  "author": "irwinj",
+  "engines": {
+    "node": "9.3.0"
+  }
+}

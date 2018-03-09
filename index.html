@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html><head>
+
+<script type="text/javascript"
+  src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCCrCmkz3c0_4WKERAkWGk2Nv_r6LN7dxg&libraries=visualization">
+</script>
+
+<title>FSA dynamic // james-irwin@github</title>
+
+<script type="text/javascript">
+var marker_set=[];
+var map;
+
+var icons=[ 'http://maps.google.com/mapfiles/kml/pal3/icon39.png', 'http://maps.google.com/mapfiles/kml/pal3/icon33.png', 'http://maps.google.com/mapfiles/kml/pal3/icon41.png', 'http://maps.google.com/mapfiles/kml/pal2/icon32.png', 'http://maps.google.com/mapfiles/kml/pal4/icon39.png' ];
+
+var layout = function(map, pinset) {
+  console.log(pinset.found.length + ' of ' + pinset.total);
+  for (i in pinset.found) {
+    // remove old marker and replace with this new one.
+    if (typeof marker_set[i] != 'undefined' ) {
+      marker_set[i].setMap(null);;
+    }
+
+    marker_set[i]=new google.maps.Marker({
+      'position':new google.maps.LatLng(pinset.found[i].position.lat,
+                                        pinset.found[i].position.lon),
+      'title':pinset.found[i].BusinessName,
+      'map': map,
+      'icon':icons[pinset.found[i].RatingValue-1]
+    });
+  }
+}
+</script>
+
+<script type="text/javascript">
+var initialise = function () {
+
+  var startPoint = new google.maps.LatLng(51.4009515, -2.837446);
+
+  map = new google.maps.Map(document.getElementById('googleMap'), {
+    center: startPoint,
+    zoom: 12,
+    zoomControl: false,
+    mapTypeId: 'roadmap'
+  });
+
+  map.addListener('idle', function() { // idle occurs at end of zoom and drag
+    var bounds = map.getBounds().toJSON();
+    var url =  '/' +
+               'LAT=' + bounds.north + '&lat=' + bounds.south +
+              '&LON=' + bounds.east  + '&lon=' + bounds.west;
+    //console.log(url);
+
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+        // Typical action to be performed when the document is ready:
+        layout(map, JSON.parse(xhttp.responseText));
+        }
+      }
+
+    //console.log('searching for ' + this.input.value);
+    xhttp.open("GET", url, true);
+    xhttp.send();
+  });
+}
+
+google.maps.event.addDomListener(window, 'load', initialise);
+
+</script>
+</head>
+<body>
+<div id="googleMap" style="position: absolute; top:0;  bottom: 0; left: 0; right: 0;"></div>
+</body>
+</html>
+
